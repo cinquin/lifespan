@@ -12,7 +12,7 @@ void ns_processing_job_queue_item::save_to_db(ns_sql & sql){
 		table_lock.lock("processing_job_queue");
 		sql << "UPDATE processing_job_queue SET ";
 	}
-	sql << "priority=" << priority<< ", experiment_id="<< experiment_id << ", "
+	sql << "priority=" << priority<< ", experiment_id="<< experiment_id << ", job_name='', "
 		<< "capture_sample_id=" << capture_sample_id<< ", captured_images_id=" << captured_images_id << ", sample_region_info_id=" << sample_region_info_id << ", "
 		<< "sample_region_id=" << sample_region_image_id <<", image_id=" << image_id << ", processor_id="<<processor_id << ", "
 		<< "problem=" << problem << ", job_id=" << job_id << ", progress=" << progress << ", movement_record_id=" << movement_record_id << ", job_class = " << job_class;
@@ -211,7 +211,7 @@ void ns_image_server_push_job_scheduler::request_job_queue_discovery(ns_sql & sq
 	ns_64_bit id = sql.send_query_get_id();
 	{
 		ns_sql_full_table_lock table_lock(sql,"processing_job_queue");
-		sql << "INSERT INTO processing_job_queue SET job_id=" << id << ", priority=50";
+		sql << "INSERT INTO processing_job_queue SET job_id=" << id << ", job_name='', priority=50";
 		sql.send_query();
 		table_lock.unlock();
 	}
@@ -238,7 +238,7 @@ bool ns_image_server_push_job_scheduler::try_to_process_a_job_pending_anothers_c
 		}
 		//while experiments have regions with unanalyzed movements, don't run the job
 		else if (job.experiment_id != 0 && job.sample_id == 0){
-			if (job.maintenance_flag != ns_maintenance_generate_animal_storyboard)
+			if (job.maintenance_task != ns_maintenance_generate_animal_storyboard)
 				throw ns_ex("Only storyboards and movement analysis can be scheduled pending the completion of other jobs.");
 			sql << "SELECT movement_image_analysis_quantification_id FROM sample_region_image_info WHERE id = " << job.experiment_id << " AND excluded_from_analysis = 0 AND censored = 0";
 			ns_sql_result res;

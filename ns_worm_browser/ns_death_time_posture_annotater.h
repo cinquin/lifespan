@@ -277,7 +277,7 @@ public:
 				
 				c = ns_movement_colors::color(ns_movement_stationary)*scaling;
 			}
-			for (x; x < size.x; x++){
+			for (; x < size.x; x++){
 				
 					if(y+pos.y >= im.properties().height || x+pos.x >= im.properties().width || im.properties().components != 3)
 						throw ns_ex("Yikes! 5");
@@ -431,7 +431,7 @@ public:
 			ns_zero_death_interval(movement_cessation.time);
 			ns_zero_death_interval(death_posture_relaxation_termination.time);
 		}
-		else if (death_posture_relaxation_termination.time.period_end = 0 && 
+		else if (death_posture_relaxation_termination.time.period_end == 0 && 
 			e.event_time.period_end != death_posture_relaxation_termination.time.period_end){
 			apply_step_specification(death_posture_relaxation_termination,e,ns_worm_death_posture_relaxation_termination);
 		}
@@ -467,7 +467,7 @@ public:
 			if (!p->properties.stationary_path_id.specified())
 				continue;
 			//find the correct entry in the timing data structure for the current location
-			std::map<unsigned long,typename timing_data_container::value_type::ns_animal_list *>::iterator q = group_lookup.find(p->properties.stationary_path_id.group_id);
+			typename std::map<unsigned long,typename timing_data_container::value_type::ns_animal_list *>::iterator q = group_lookup.find(p->properties.stationary_path_id.group_id);
 			if (q == group_lookup.end())
 				continue;
 
@@ -547,7 +547,7 @@ public:
 		unsigned long current_time(ns_current_time());
 		if (set.size() > 20)
 			cout << "Many annotations specified!\n";
-		for (timing_data_container::const_iterator p =timing_data.begin() ; p != timing_data.end(); ++p){
+		for (typename timing_data_container::const_iterator p = timing_data.begin() ; p != timing_data.end(); ++p){
 			if (p->specified == false)
 				continue;
 			if (p->translation_cessation.time.period_end != 0)
@@ -754,7 +754,7 @@ public:
 
 		if (alignment_type == ns_time_aligned_images){
 			//load timepoint data
-			sql() << "SELECT i.id,i.partition, i.path, i.filename,r.id, r.capture_time FROM images as i, sample_region_images as r WHERE "
+			sql() << "SELECT i.id,i.`partition`, i.path, i.filename,r.id, r.capture_time FROM images as i, sample_region_images as r WHERE "
 				<< "r.region_info_id = " << region_info_id
 				<< " AND r.problem = 0 "
 				<< " AND r.censored = 0 "
@@ -789,7 +789,7 @@ public:
 			}
 		}
 		else if (alignment_type == ns_death_aligned_images){
-			sql() << "SELECT i.id,i.partition,i.path,i.filename,r.id FROM images as i, sample_region_image_aligned_path_images as r WHERE "
+			sql() << "SELECT i.id,i.`partition`,i.path,i.filename,r.id FROM images as i, sample_region_image_aligned_path_images as r WHERE "
 				    "r.region_info_id = " << region_info_id << " AND r.image_id = i.id";
 			ns_sql_result res;
 			sql().get_rows(res);

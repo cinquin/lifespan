@@ -114,7 +114,7 @@ void ns_movement_visualization_generator::create_survival_curve_for_capture_time
 
 	for (unsigned int i = 0; i < plate_survival.y.size()-1; i++){
 		plate_survival.y[i+1] = plate.data.probability_of_surviving_up_to_interval[i];
-		if (i >= 0 && plate_survival.y[i] <= 0)
+		if (plate_survival.y[i] <= 0)
 			plate_survival.y[i+1] = -1;
 		plate_survival.x[i+1] = (plate_time[i]-metadata.time_at_which_animals_had_zero_age)/60.0/60.0/24.0;
 		plate_marker.x[0] = (marker_time-metadata.time_at_which_animals_had_zero_age)/60.0/60.0/24.0;
@@ -125,7 +125,7 @@ void ns_movement_visualization_generator::create_survival_curve_for_capture_time
 	if (!strain_time.empty())
 	for (unsigned int i = 0; i < strain_survival.y.size()-1; i++){
 		strain_survival.y[i+1] = strain.data.probability_of_surviving_up_to_interval[i];
-		if (i >= 0 && strain_survival.y[i] <= 0)
+		if (strain_survival.y[i] <= 0)
 			strain_survival.y[i+1] = -1;
 		strain_survival.x[i+1] = (strain_time[i]-metadata.time_at_which_animals_had_zero_age)/60.0/60.0/24.0;
 		strain_marker.x[0] = (marker_time-metadata.time_at_which_animals_had_zero_age)/60.0/60.0/24.0;
@@ -724,8 +724,9 @@ void ns_movement_visualization_generator::create_time_path_analysis_visualizatio
 		//		ns_to_string(location->properties.number_of_worms_at_location_marked_by_hand),out);
 			edge_color = ns_color_8(255,180,120);
 			const int edge_width(3);
-			for (unsigned int y = 0; y < detected_worms[w]->edge_bitmap().properties().height; y++){
-				for (unsigned int x = 0; x < detected_worms[w]->edge_bitmap().properties().width; x++){
+			// use signed ints for x and y so that "x + dx" type expressions are also properly signed.
+			for (int y = 0; y < detected_worms[w]->edge_bitmap().properties().height; y++){
+				for (int x = 0; x < detected_worms[w]->edge_bitmap().properties().width; x++){
 					if (detected_worms[w]->edge_bitmap()[y][x]){
 						for (int dx = -edge_width; dx <= edge_width; dx++)
 							for (int dy = -edge_width; dy <= edge_width; dy++){

@@ -1832,7 +1832,12 @@ void ns_image_worm_detection_results::save(ns_image_server_captured_image_region
 		if (i+1 <  actual_worms.size())
 			movement_tags+=",";
 	}
-	sql << movement_tags << "'";
+	sql << movement_tags << "' ,";
+	// Now provide empty values for the required-though-deprecated blob columns:
+	sql << "worm_segment_node_counts='', worm_segment_information='', worm_region_information='', worm_fast_movement_mapping=''"
+	    << ", worm_slow_movement_mapping='', worm_movement_state='', worm_movement_fast_speed='', worm_movement_slow_speed=''"
+		<< ", worm_movement_tags='', interpolated_worm_areas=''";
+	
 	/*
 	std::vector<unsigned char> worm_movement_tags(2*actual_worms.size(),0);
 	for (unsigned int i = 0; i < actual_worms.size(); i++){
@@ -2908,7 +2913,7 @@ void ns_image_worm_detection_results::clear(){
 	 source_image_id = 0;
 	 capture_sample_id = 0;
 	 capture_time = 0;
-	 data_storage_on_disk;
+	 data_storage_on_disk = ns_image_server_image();
 	 id = 0;
 	 mutually_exclusive_worm_groups.clear();
 	 interpolated_worm_areas.clear();

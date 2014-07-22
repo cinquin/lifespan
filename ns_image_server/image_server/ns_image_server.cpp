@@ -1680,9 +1680,10 @@ void ns_image_server::register_host(bool overwrite_current_entry){
 
 	if (h.size() == 0){
 		sql()<< "INSERT INTO hosts SET name='" << host_name << "', base_host_name='" << base_host_name << "', ip='" << host_ip << "', port='" << _dispatcher_port 
-			<< "', long_term_storage_enabled='" << long_term_storage_ << "',"
+			<< "', long_term_storage_enabled='" << long_term_storage_ << "', comments='', "
 			<< "software_version_major=" << software_version_major() << ", software_version_minor=" << software_version_minor()
-			<< ", software_version_compile=" << software_version_compile()<< ",database_used='" << *sql_database_choice << "'";
+			<< ", software_version_compile=" << software_version_compile()<< ",database_used='" << *sql_database_choice 
+			<< "', time_of_last_successful_long_term_storage_write=0";
 		_host_id = sql().send_query_get_id();
 	}
 	else if (h.size() != 1)
@@ -1834,7 +1835,7 @@ void ns_image_server::load_constants(const ns_image_server::ns_image_server_exec
 	terminal_constants.add_field("max_height","768","The maximum height of the worm browser window");
 	terminal_constants.add_field("hand_annotation_resize_factor","3","How many times should images of worms be shrunk before being displayed when looking at storyboards?  Larger values result in smaller worms during by hand annotation of worms");
 	terminal_constants.add_field("mask_upload_database","image_server","The SQL database in which image masks should be stored.  This is usually set to the value specified for the central_sql_databases option in the ns_image_server.ini file");
-	terminal_constants.add_field("mask_upload_hostname","myhost","The host name (e.g bob or lab_desktop_1) of the server where sample region masks should be uploaded. This is usually set to the value of the host_name option set the acquisition server’s ns_image_server.ini file");
+	terminal_constants.add_field("mask_upload_hostname","myhost","The host name (e.g bob or lab_desktop_1) of the server where sample region masks should be uploaded. This is usually set to the value of the host_name option set the acquisition server's ns_image_server.ini file");
 	terminal_constants.add_field("verbose_debug_output","false","If this option is set to true, the image server and worm browser will generate detailed debug information while running various steps of image acquisition and image processing.  An file containing this output will be written to the volatile_storage directory.");
 	string ini_directory,ini_filename;
 	try{
@@ -1870,7 +1871,7 @@ void ns_image_server::load_constants(const ns_image_server::ns_image_server_exec
 
 		if (exec_type == ns_worm_terminal_type){
 			ini_filename = ini_directory + DIR_CHAR_STR + "ns_worm_browser.ini";
-			terminal_constants.load(ini_directory + DIR_CHAR_STR + "ns_worm_browser.ini");
+			terminal_constants.load(ini_filename);
 			max_terminal_window_size.x = atol(terminal_constants["max_width"].c_str());
 			max_terminal_window_size.y = atol(terminal_constants["max_height"].c_str());
 			terminal_hand_annotation_resize_factor = atol(terminal_constants["hand_annotation_resize_factor"].c_str());
@@ -2002,7 +2003,7 @@ void ns_image_server::load_constants(const ns_image_server::ns_image_server_exec
 				throw ns_ex ("ns_image_server::Specified video complier filename (") << _video_compiler_filename << ") cannot be executed.";
 			}
 		}
-		#ifndef WIN32
+		#ifndef _WIN32
 			//omp_set_num_threads(_number_of_simultaneous_threads);
 			//omp_set_dynamic(_number_of_simultaneous_threads);
 		#endif

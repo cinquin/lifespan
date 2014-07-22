@@ -8,7 +8,7 @@
 #include "shellapi.h"
 #endif
 using namespace std;
-#ifndef WIN32
+#ifndef _WIN32
 	#ifdef __APPLE__
 		#include <sys/statvfs.h>
 	#else
@@ -72,23 +72,17 @@ const bool ns_dir::file_exists(const string & f){
 }
 
 const bool ns_dir::copy_file(const string & source, const string & destination){
-#ifdef _WIN32 
-
+#ifdef _WIN32
 	ifstream in(source.c_str(), std::ios::binary);
 	ofstream out(destination.c_str(), std::ios::binary);
-
+#else
+	ifstream in(source.c_str());
+	ofstream out(destination.c_str()); 
+#endif
 	if (in.fail() || out.fail())
 		return false;
 	out << in.rdbuf();
 	return true;
-
-	//return CopyFile(source.c_str(),destination.c_str(),false) != 0;
-#else   
-	ifstream  in (source.c_str());
-	ofstream  out (destination.c_str()); 
-	if (in.fail() || out.fail())return false;
-	out << in.rdbuf();
-#endif
 }
 
 const bool ns_dir::move_file(const string & source, const string & destination){

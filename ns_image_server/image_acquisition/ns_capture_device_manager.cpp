@@ -6,7 +6,7 @@ using namespace std;
 #include <iostream>
 
 
-unsigned long ns_system_boot_time(){
+string ns_system_boot_time_str(){
 	ns_external_execute exec;
 	ns_external_execute_options opt;
 	opt.binary = false;
@@ -38,80 +38,22 @@ unsigned long ns_system_boot_time(){
 		if (l == 0)
 			break;
 	}
-//#undef WIN32
-//	res = "\tsystem boot 2010-11-20 19:58\n";
+
+	string::size_type start = 0;
 	#ifdef _WIN32 
-	std::string::size_type p = res.find("Statistics since");
-	if (p == res.npos)
-		throw ns_ex("ns_system_boot_time::Could not parse boot time statistics (1).");
+	start = res.find("Statistics since");
+	if (start == res.npos)
+		throw ns_ex("ns_system_boot_time_str::Could not parse boot time statistics.");
+	start += 16;
+	#endif
 	string res2(res);
 	res.resize(0);
-	for (std::string::size_type i = p+16; i < res2.size(); i++){
+	for (std::string::size_type i = start; i < res2.size(); i++){
 		if (res2[i]=='\n')
 			break;
 		res+=res2[i];
 	}
-	#endif
-
-	bool found_date(false);
-	string date;
-	for (unsigned int i = 0; i < res.size(); i++){
-		if (!found_date){
-			if (isdigit(res[i])){
-			found_date = true;
-			date+=res[i];
-			}
-		}
-		else{
-			if (res[i]=='\n')
-				break;
-			date+=res[i];
-		}
-	}
-	
-	tm t;
-
-#ifdef _WIN32 
-	date = "09/04/2010 12:35:00";
-	if (date.size() < 17)
-		throw ns_ex("ns_system_boot_time::Could not parse boot time statistics (3).");
-	t.tm_mon = atol(date.substr(0,2).c_str());
-	t.tm_mday = atol(date.substr(3,2).c_str());
-	t.tm_year = atol(date.substr(6,4).c_str());
-	if (date[12] == ':'){
-		t.tm_hour = atol(date.substr(11,1).c_str());
-		t.tm_min = atol(date.substr(13,2).c_str());
-		if (date[16] == 'P')
-			t.tm_hour+=12;
-	}
-	else{
-		if (date.size() < 18)
-			throw ns_ex("ns_system_boot_time::Could not parse boot time statistics (2).");
-		t.tm_hour = atol(date.substr(11,2).c_str());
-		t.tm_min = atol(date.substr(14,2).c_str());
-		if (date[17] == 'P')
-			t.tm_hour+=12;
-	}
-#else
-	if (date.size() < 15)
-		throw ns_ex("ns_system_boot_time::Could not parse boot time statistics (4).");
-	t.tm_mon = atol(date.substr(5,2).c_str());
-	t.tm_mday = atol(date.substr(8,2).c_str());
-	t.tm_year = atol(date.substr(0,4).c_str());
-
-	t.tm_hour = atol(date.substr(11,2).c_str());
-	t.tm_min = atol(date.substr(14,2).c_str());
-
-#endif
-	t.tm_mon--;
-	t.tm_year-=1900;
-	t.tm_sec = 0;
-	t.tm_isdst = -1;
-	time_t cur_time(mktime(&t));
-	if (cur_time == -1)
-		throw ns_ex("ns_system_boot_time::Could not parse boot time statistics (5).");
-	return (unsigned long)cur_time;
-//#define WIN32
+	return res;
 };
 
 void ns_image_server_device_manager::test_balancing_(){
@@ -759,7 +701,7 @@ void ns_image_server_device_manager::run_capture_on_device(ns_capture_thread_arg
 }
 
 void ns_image_server_device_manager::run_capture_on_device_asynch(ns_capture_thread_arguments & arguments){
-	//#ifndef WIN32
+	//#ifndef _WIN32
     //    umask(0x01FC);
 	//#endif
 
@@ -1077,7 +1019,6 @@ public:
 			recovered_device_name = ns_barcode_decode(bar_image,parse_filename);
 		}
 		catch(ns_ex & ex){
-			ex;
 			//if the visualization cannot be made, try again to parse without it
 			cerr << "Could not make barcode visualization, trying to decode without it...";
 			recovered_device_name = ns_barcode_decode(bar_image);
@@ -1125,7 +1066,7 @@ bool ns_image_server_device_manager::hotplug_new_devices(const bool rescan_bad_b
 			image_server.register_server_event(ns_image_server::ns_register_in_local_db,ns_image_server_event("Looking for hardware changes (hotplug)..."));
 		lock.get(__FILE__,__LINE__);
 		//create a list of the hardware addresses of scanners attached to the system
-		#ifndef WIN32
+		#ifndef _WIN32
 		ns_get_scanner_hardware_address_list(all_hardware);
 		#endif
 
@@ -1421,8 +1362,8 @@ void ns_image_server_device_manager::save_last_known_device_configuration(){
 		ns_acquire_lock_for_scope lock(device_list_access_lock,__FILE__,__LINE__);
 		*out << "# ns_image_server: Last known device configuration for host " << image_server.host_name_out() << "\n";
 		if (devices.empty())
-			*out << "#\n" << "# No devices were identified.";
-		*out << "!" << ns_system_boot_time() << "\n";
+			*out << "#\n" << "# No devices were identified.\n";
+		*out << "!" << ns_system_boot_time_str() << "\n";
 		unsigned long good_device_count(0),
 					  unknown_device_count(0),
 					  simulated_device_count(0);
@@ -1456,7 +1397,7 @@ bool ns_image_server_device_manager::load_last_known_device_configuration(){
 		delete in;
 		return false;
 	}
-	unsigned long file_specified_last_boot_time(0);
+	string file_specified_last_boot_time;
 	try{
 		while(true){
 			char first(in->get());
@@ -1472,16 +1413,14 @@ bool ns_image_server_device_manager::load_last_known_device_configuration(){
 					continue;
 			}
 			if (first == '!'){
-				std::string bt;
 				while(true){
 					char a = in->get();
 					if (in->fail())
 						throw ns_ex("ns_image_server::load_last_known_device_configuration()::Invalid syntax");
 					if (a=='\n') break;
-					bt+=a;
+					file_specified_last_boot_time += a;
 				}
 
-				file_specified_last_boot_time =atol(bt.c_str());
 				continue;
 			}
 			std::string hardware,name;
@@ -1504,11 +1443,11 @@ bool ns_image_server_device_manager::load_last_known_device_configuration(){
 			}
 		}
 		in->close();
-		unsigned long boot_time(ns_system_boot_time());
+		string boot_time(ns_system_boot_time_str());
 		if (file_specified_last_boot_time != boot_time){
-			ns_image_server_event ev("A reboot appears to have occurred at ");
-			ev << ns_format_time_string_for_human(boot_time);
-			ev << ".  Rebuilding device list.";
+			ns_image_server_event ev("A reboot appears to have occurred (system log: ");
+			ev << boot_time;
+			ev << ").  Rebuilding device list.";
 			image_server.register_server_event_no_db(ev);
 			return false;
 		}

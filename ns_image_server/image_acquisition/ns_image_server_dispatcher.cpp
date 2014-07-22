@@ -103,10 +103,11 @@ void ns_image_server_dispatcher::handle_remote_requests(){
 				ns_socket_connection & socket_connection(req.connection);
 		//	socket_connection.close();
 		//	return;
-				if (message.request() != NS_TIMER && message.request() != NS_CHECK_FOR_WORK && message.request() != NS_LOCAL_CHECK_FOR_WORK)
+				if (message.request() != NS_TIMER && message.request() != NS_CHECK_FOR_WORK && message.request() != NS_LOCAL_CHECK_FOR_WORK) {
 					if (currently_unable_to_connect_to_the_central_db)
 						image_server.register_server_event(ns_image_server::ns_register_in_local_db,ns_image_server_event("Recieved the message: ") << ns_message_request_to_string(message.request()));
 					else image_server.register_server_event(ns_image_server::ns_register_in_central_db,ns_image_server_event("Recieved the message: ") << ns_message_request_to_string(message.request()));
+				}
 				//if (message.request() == NS_CHECK_FOR_WORK) cerr<< ".";
 
 				switch(message.request()){
@@ -1020,7 +1021,6 @@ bool ns_image_server_dispatcher::look_for_work(){
 		work_sql_connection->check_connection();
 	}
 	catch(ns_ex & ex){
-		ex;
 		ns_image_server_event ev;
 		ev << "Lost connection to mySQL server.  Reconnecting..." << ns_ts_sql_error;
 		image_server.register_server_event_no_db(ev);
