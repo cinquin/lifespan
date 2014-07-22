@@ -1,5 +1,4 @@
 #include "ns_libtiff_interface.h"
-#include "tiffiop.h"
 #include <fcntl.h>
 
 //apologies for pulling in the OS-dependant tiff files as includes.
@@ -10,9 +9,9 @@
 //Because all of the _tiff functions are declared as static we pull them in as includes.
 #ifdef _WIN32 
 #include <Windows.h>
-#include "tif_win32.c"
+#include "tif_win32_proconly.c"
 #else
-#include "tif_unix.c"
+#include "tif_unix_proconly.c"
 #endif
 
 static tsize_t ns_tiffReadProc(thandle_t fd, tdata_t buf, tsize_t size){
@@ -68,9 +67,34 @@ TIFF* ns_tiff_fd_open(struct ns_tiff_client_data * client_data, const char* name
 
 	#endif
 	if (tif)
-		tif->tif_fd = (int)client_data->file_descriptor;
+		TIFFSetFileno(tif, (int)client_data->file_descriptor);
 	return (tif);
 }
+
+
+int ns_TIFFgetMode(const char* mode, const char* module)
+{
+	int m = -1;
+
+	switch (mode[0]) {
+	case 'r':
+		m = O_RDONLY;
+		if (mode[1] == '+')
+			m = O_RDWR;
+		break;
+	case 'w':
+	case 'a':
+		m = O_RDWR|O_CREAT;
+		if (mode[0] == 'w')
+			m |= O_TRUNC;
+		break;
+	default:
+		TIFFErrorExt(0, module, "\"%s\": Bad mode", mode);
+		break;
+	}
+	return (m);
+}
+
 
 TIFF* ns_tiff_open(const char* name, struct ns_tiff_client_data * client_data,const char* mode){
 #ifdef _WIN32 
@@ -80,7 +104,7 @@ TIFF* ns_tiff_open(const char* name, struct ns_tiff_client_data * client_data,co
 	DWORD dwMode;
 	TIFF* tif;
 
-	m = _TIFFgetMode(mode, module);
+	m = ns_TIFFgetMode(mode, module);
 
 	switch(m)
 	{
@@ -120,7 +144,7 @@ TIFF* ns_tiff_open(const char* name, struct ns_tiff_client_data * client_data,co
 	int m;
         TIFF* tif;
 
-	m = _TIFFgetMode(mode, module);
+	m = ns_TIFFgetMode(mode, module);
 	if (m == -1)
 		return ((TIFF*)0);
 
