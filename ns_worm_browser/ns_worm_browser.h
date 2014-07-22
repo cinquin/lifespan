@@ -187,12 +187,15 @@ public:
 
 	void register_size_change(ns_image_properties & prop){
 		bool detete_current_unfinished(false);
-		for (std::vector<ns_area_box>::const_iterator p = boxes.begin(); p != boxes.end(); ){
+		for (std::vector<ns_area_box>::iterator p = boxes.begin(); p != boxes.end(); ){
 			if ((!(p->image_coords.bottom_right == ns_vector_2i(-1,-1) &&
 				(p->image_coords.bottom_right.x >=  prop.width || p->image_coords.bottom_right.y >=  prop.height))||
 				p->image_coords.top_left.x >=  prop.width || p->image_coords.top_left.y >=  prop.height)){
 				if (unfinished_box_exists && current_unfinished_box == p)
 					detete_current_unfinished = true;
+				//zach, erasing from a vector potentially
+				//invalidates existing iterators to elements.
+				//we need to use the value returned by erase.
 				p = boxes.erase(p);
 			}
 			else ++p;
@@ -792,15 +795,7 @@ public:
 	ns_image_series_annotater * current_annotater;
 	ns_death_time_solo_posture_annotater death_time_solo_annotater;
 
-	void save_current_area_selections(){
-		string device_name = ns_extract_scanner_name_from_filename(get_current_clipboard_filename());
-		string default_filename = ns_format_time_string(ns_current_time()) + "=" + device_name + "=sample_regions.txt";
-
-		std::vector<dialog_file_type> foo;
-		foo.push_back(dialog_file_type("Text (*.txt)","txt"));
-		std::string filename = save_file_dialog("Save Area Information",foo,"txt",default_filename);		
-		output_area_info(filename);
-	}
+	void save_current_area_selections();
 
 	
 	ns_image_standard animation;

@@ -145,44 +145,45 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\external_compile_libraries\libdmtx-0.7.4\dmtx.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_aux.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_close.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_codec.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_color.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_compress.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_dir.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_dirinfo.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_dirread.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_dirwrite.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_dumpmode.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_error.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_extension.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_fax3.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_fax3sm.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_flush.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_getimage.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_jpeg.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_luv.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_lzw.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_next.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_ojpeg.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_open.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_packbits.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_pixarlog.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_predict.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_print.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_read.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_strip.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_swab.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_thunder.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_tile.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_version.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_warning.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_win32.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_write.c" />
+    <ClCompile Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_zip.c" />
     <ClCompile Include="..\external_libraries\ctmf\ctmf.c" />
     <ClCompile Include="..\external_libraries\libhungarian\hungarian.c" />
     <ClCompile Include="..\external_libraries\libsvm\svm.cpp" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_aux.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_close.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_codec.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_color.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_compress.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_dir.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_dirinfo.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_dirread.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_dirwrite.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_dumpmode.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_error.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_extension.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_fax3.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_fax3sm.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_flush.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_getimage.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_jpeg.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_luv.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_lzw.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_next.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_ojpeg.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_open.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_packbits.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_pixarlog.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_predict.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_print.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_read.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_strip.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_swab.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_thunder.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_tile.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_version.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_warning.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_write.c" />
-    <ClCompile Include="..\external_libraries\tiff-3.8.2\libtiff\tif_zip.c" />
     <ClCompile Include="..\external_compile_libraries\openjpeg-1.5.0\libopenjpeg\bio.c" />
     <ClCompile Include="..\external_compile_libraries\openjpeg-1.5.0\libopenjpeg\cidx_manager.c" />
     <ClCompile Include="..\external_compile_libraries\openjpeg-1.5.0\libopenjpeg\cio.c" />
@@ -366,19 +367,8 @@
     <ClCompile Include="..\ns_worm_browser\ns_worm_browser_main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\external_compile_libraries\tiff-3.8.2\libtiff\tif_predict.h" />
     <ClInclude Include="..\external_libraries\libsvm\svm.h" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\t4.h" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\tiff.h" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\tiffconf.h" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\tiffio.h" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\tiffio.hxx" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\tiffiop.h" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\tiffvers.h" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\tif_config.h" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\tif_dir.h" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\tif_fax3.h" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\tif_predict.h" />
-    <ClInclude Include="..\external_libraries\tiff-3.8.2\libtiff\uvcode.h" />
     <ClInclude Include="..\external_compile_libraries\openjpeg-1.5.0\libopenjpeg\bio.h" />
     <ClInclude Include="..\external_compile_libraries\openjpeg-1.5.0\libopenjpeg\cidx_manager.h" />
     <ClInclude Include="..\external_compile_libraries\openjpeg-1.5.0\libopenjpeg\cio.h" />
@@ -560,15 +550,6 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\external_libraries\tiff-3.8.2\libtiff\tiffconf.h.vc">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\external_libraries\tiff-3.8.2\libtiff\tif_config.h.in">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\external_libraries\tiff-3.8.2\libtiff\tif_config.h.vc">
-      <FileType>Document</FileType>
-    </None>
     <None Include="..\external_compile_libraries\openjpeg-1.5.0\libopenjpeg\CMakeLists.txt" />
     <None Include="..\external_compile_libraries\openjpeg-1.5.0\libopenjpeg\Makefile.am">
       <FileType>Document</FileType>

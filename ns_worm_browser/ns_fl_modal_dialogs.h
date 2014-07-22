@@ -71,7 +71,7 @@ class ns_file_chooser{
 		 if (delete_filter_string)
 			 delete[] filter_string;
 	}
-
+private:
 	bool set_filter_string(char *& filter_text){
 		bool should_delete(false);
 		//char * filter_text;

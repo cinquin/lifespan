@@ -11,7 +11,6 @@
 #include "ns_movement_visualization_generator.h"
 #include "ns_time_path_image_analyzer.h"
 #include "ns_hidden_markov_model_posture_analyzer.h"
-#include "resource.h"
 #include "ns_fl_modal_dialogs.h"
 
 #include "hungarian.h"
@@ -917,20 +916,20 @@ public:
 template<class T, class metadata_t>
 class ns_draw_element_group{
 public:
-	typedef std::vector<ns_draw_element<typename T> > ns_element_list;
+	typedef std::vector<ns_draw_element<T> > ns_element_list;
 	ns_element_list elements;
 	unsigned long unexcluded_count;
 	metadata_t metadata;
 };
 template<class T, class metadata_t>
 struct ns_death_time_compiler_random_picker{
-	typedef std::vector<ns_draw_element_group<typename T, typename metadata_t> > ns_element_group_list;
+	typedef std::vector<ns_draw_element_group<T, metadata_t> > ns_element_group_list;
 	typedef std::pair<T,metadata_t> return_type;
 	ns_element_group_list element_groups;
 		
 	const return_type get_random_event_with_replacement(){
-		ns_element_group_list::iterator element_group;
-		ns_draw_element_group<T,metadata_t>::ns_element_list::iterator element;
+		typename ns_element_group_list::iterator element_group;
+		typename ns_draw_element_group<T,metadata_t>::ns_element_list::iterator element;
 
 		get_random_region_and_location(element_group,element);
 		//region_sizes[&region->second]--;
@@ -940,8 +939,8 @@ struct ns_death_time_compiler_random_picker{
 	}
 
 	const return_type get_random_event_without_replacement(){
-		ns_element_group_list::iterator element_group;
-		ns_draw_element_group<T,metadata_t>::ns_element_list::iterator element;
+		typename ns_element_group_list::iterator element_group;
+		typename ns_draw_element_group<T,metadata_t>::ns_element_list::iterator element;
 		get_random_region_and_location(element_group,element);
 		element_group->unexcluded_count--;
 		element->excluded = true;
@@ -951,9 +950,9 @@ struct ns_death_time_compiler_random_picker{
 
 	void initialize_for_picking(){
 		total_count = 0;
-		for (ns_element_group_list::iterator p = element_groups.begin(); p != element_groups.end(); p++){
+		for (typename ns_element_group_list::iterator p = element_groups.begin(); p != element_groups.end(); p++){
 			
-		for (ns_draw_element_group<T,metadata_t>::ns_element_list::iterator q = p->elements.begin(); q != p->elements.end(); q++){
+		for (typename ns_draw_element_group<T,metadata_t>::ns_element_list::iterator q = p->elements.begin(); q != p->elements.end(); q++){
 				q->excluded = false;
 			}
 			p->unexcluded_count = p->elements.size();
@@ -968,7 +967,7 @@ struct ns_death_time_compiler_random_picker{
 		element_groups[group_id].metadata = m;
 	}
 private:
-	void get_random_region_and_location(typename ns_element_group_list::iterator & group,typename ns_draw_element_group<typename T, typename metadata_t>::ns_element_list::iterator & element){
+	void get_random_region_and_location(typename ns_element_group_list::iterator & group,typename ns_draw_element_group<T, metadata_t>::ns_element_list::iterator & element){
 		if (total_count == 0)
 			throw ns_ex("No annotations in set!");
 		unsigned long r((unsigned long)((rand()/(double)RAND_MAX)*(total_count-1)));
@@ -1737,13 +1736,13 @@ void ns_worm_learner::output_movement_analysis_optimization_data(const ns_parame
 
 void ns_write_emperical_posture_model(const std::string & path_and_base_filename, const std::string &experiment_name,const std::string & strain,ns_emperical_posture_quantification_value_estimator & e){
 	
-	ofstream sample_file(path_and_base_filename + "="+strain+"=samples.csv");
+	ofstream sample_file((path_and_base_filename + "="+strain+"=samples.csv").c_str());
 	e.write_samples(sample_file,experiment_name);
 	sample_file.close();
 	e.generate_estimators_from_samples();
-	ofstream moving_file(path_and_base_filename + "="+strain+ "=model_moving.csv");
-	ofstream dead_file(path_and_base_filename + "="+strain+ "=model_dead.csv");
-	ofstream visualization_file(path_and_base_filename + "="+strain+ "=model_visualization.csv");
+	ofstream moving_file((path_and_base_filename + "="+strain+ "=model_moving.csv").c_str());
+	ofstream dead_file((path_and_base_filename + "="+strain+ "=model_dead.csv").c_str());
+	ofstream visualization_file((path_and_base_filename + "="+strain+ "=model_visualization.csv").c_str());
 	e.write(moving_file,dead_file, &visualization_file,experiment_name);
 	moving_file.close();
 	dead_file.close();
@@ -1948,7 +1947,12 @@ void ns_worm_learner::generate_experiment_movement_image_quantification_analysis
 		}
 	}	
 	if (detail_level == ns_build_worm_markov_posture_model_from_by_hand_annotations){
+		//TODO: Surely there's a better place to write these files?
+		#ifdef _WIN32
 		std::string base_path("c:\\");
+		#else
+		std::string base_path("/");
+		#endif
 		base_path+=experiment_name;
 		for (std::map<string,ns_emperical_posture_quantification_value_estimator>::iterator p = value_estimators.begin(); p!=value_estimators.end(); p++){
 			if (!p->second.raw_moving_cdf.samples().empty() &&
@@ -2062,6 +2066,19 @@ void ns_match_locations(const std::vector<ns_vector_2i> baseline, const std::vec
 		throw;
 	}
 }
+
+void ns_worm_learner::save_current_area_selections(){
+		string device_name = ns_extract_scanner_name_from_filename(get_current_clipboard_filename());
+		string default_filename = ns_format_time_string(ns_current_time()) + "=" + device_name + "=sample_regions.txt";
+		
+		ns_image_file_chooser im_cc;
+		im_cc.save_file();
+		ns_file_chooser_file_type t;
+		im_cc.filters.push_back(ns_file_chooser_file_type("Text","txt"));
+		ns_run_in_main_thread<ns_image_file_chooser> run_mt(&im_cc);
+		if (im_cc.chosen)
+			output_area_info(im_cc.result);
+	}
 
 struct ns_capture_image_d{
 	ns_capture_image_d(const ns_64_bit & c, const ns_64_bit & i):captured_image_id(c),image_id(i){}
@@ -3341,7 +3358,8 @@ void ns_worm_learner::upgrade_tables(){
 		
 	sql.release();
 		
-	d.act();
+	//d.act();
+	ns_run_in_main_thread<ns_alert_dialog> dd(&d);
 
 }
 void ns_worm_learner::handle_file_request(const string & fname){
@@ -3397,6 +3415,9 @@ void ns_worm_learner::handle_file_request(const string & fname){
 
 }
 void ns_worm_learner::paste_from_clipboard(){
+#ifndef _WIN32
+	throw ns_ex("Clipboard currently only supported on Windows");
+#else
 	if (OpenClipboard(NULL) == 0)
 		throw ns_ex("Could not open clipboard");
 	try{
@@ -3535,6 +3556,7 @@ void ns_worm_learner::paste_from_clipboard(){
 		CloseClipboard();
 		throw;
 	}
+#endif // _WIN32
 }
 
 void ns_worm_learner::run_binary_morpholgical_manipulations(){
@@ -3543,6 +3565,9 @@ void ns_worm_learner::run_binary_morpholgical_manipulations(){
 }
 
 void ns_worm_learner::copy_to_clipboard(){
+#ifndef _WIN32
+	throw ns_ex("Clipboard currently only supported on Windows");
+#else
 	if (OpenClipboard(NULL) == 0)
 		throw ns_ex("Could not open clipboard");
 	EmptyClipboard();
@@ -3571,6 +3596,7 @@ void ns_worm_learner::copy_to_clipboard(){
 		cerr << "Unknown Exception";
 		CloseClipboard();
 	}
+#endif // _WIN32
 }
 struct ns_subregion_source_info{
 	unsigned long region_id,x,y,w,h;
@@ -3625,7 +3651,7 @@ void ns_worm_learner::output_subregion_as_test_set(const std::string & old_info)
 
 			ns_image_server_image im;
 			im.load_from_db(image_id,sql);
-			ns_image_storage_source_handle<ns_8_bit> & handle(image_server.image_storage.request_from_storage(im,sql));
+			ns_image_storage_source_handle<ns_8_bit> handle = image_server.image_storage.request_from_storage(im,sql);
 			handle.input_stream().pump(temp,1024);
 			if (si.x + si.w >= temp.properties().width || si.y + si.h >= temp.properties().height)
 				throw ns_ex("Invalid subregion (x,y,w,h)=") << si.x << "(" << si.y << "," << si.w <<"," << si.h << ")" << " in image with dimensions " << temp.properties().width << "," << temp.properties().height;
@@ -3841,7 +3867,7 @@ void ns_worm_learner::to_bw(){
 	if (current_image.properties().components != 1){
 		//current_image->color_converter(b&w)->current_image_indirect->current_image
 		ns_image_standard_indirect current_indirect(current_image);
-		ns_image_stream_color_converter<ns_8_bit, typename ns_image_standard::storage_type>color_converter(128);
+		ns_image_stream_color_converter<ns_8_bit, ns_image_standard::storage_type>color_converter(128);
 		color_converter.set_output_components(1);
 		ns_image_stream_binding<ns_image_stream_color_converter<ns_8_bit, ns_image_standard::storage_type>,
 								ns_image_standard_indirect > to_black_and_white(color_converter,current_indirect,128);
@@ -4208,13 +4234,15 @@ void ns_worm_learner::process_contiguous_regions(){
 	if (worm_detection_results != 0)
 		delete worm_detection_results;	
 	unsigned long start_time = ns_current_time();
+	// std::string debug_file("c:\\segment_debug\\deb_");
+	std::string debug_file("");		
 	worm_detection_results = worm_detector.run(0,0,current_image,detection_brightfield,
 		detection_spatial_median,
 		static_mask,
 		ns_worm_detection_constants::get(ns_worm_detection_constant::minimum_worm_region_area,current_image.properties().resolution),
 		ns_worm_detection_constants::get(ns_worm_detection_constant::maximum_worm_region_area,current_image.properties().resolution),
 		ns_worm_detection_constants::get(ns_worm_detection_constant::maximum_region_diagonal,current_image.properties().resolution),
-		*model_specification,ns_worm_detection_constants::get(ns_worm_detection_constant::maximum_number_of_actual_worms_per_image),"c:\\segment_debug\\deb_",ns_detected_worm_info::ns_vis_both);
+		*model_specification,ns_worm_detection_constants::get(ns_worm_detection_constant::maximum_number_of_actual_worms_per_image),debug_file,ns_detected_worm_info::ns_vis_both);
 	unsigned long stop_time = ns_current_time();
 	cerr << "\nComputation time: " << stop_time - start_time << "\n";
 	detection_spatial_median.pump(current_image,128);
@@ -4501,7 +4529,7 @@ void ns_worm_learner::send_mask_to_server(const std::string & ip_address,const u
 	cerr << "\nUpdating database....";
 	ns_sql * sql = image_server.new_sql_connection(__FILE__,__LINE__);
 	*sql << "INSERT INTO images SET filename = '" << current_mask_filename << "', creation_time = '" << ns_current_time() << "', "
-		<< "path = '" << ns_image_server::unclaimed_masks_directory() << "', currently_under_processing=0 ";
+		<< "path = '" << ns_image_server::unclaimed_masks_directory() << "', currently_under_processing=0, partition=''";
 	unsigned long image_id = sql->send_query_get_id();
 	*sql << "INSERT INTO image_masks SET image_id = " << image_id << ", processed='0'";
 	sql->send_query();
@@ -5421,7 +5449,7 @@ public:
 	ns_thermometer_image_processor processor;
 	vector<ns_thermometer_measurement> measurements;
 };
-
+/*
 void ns_run_first_thermometer_experiment(){
 
 	vector<ns_thermometer_experiment> scanners(10);
@@ -5499,7 +5527,7 @@ void ns_run_first_thermometer_experiment(){
 	}
 	output.close();
 };
-
+*/
 void ns_worm_learner::draw_animation(const double &t){
 	unsigned long offset(10);
 //	cerr << t << "\n";
@@ -5695,6 +5723,7 @@ bool ns_worm_learner::start_death_time_annotation(const ns_behavior_mode m,const
 	return true;
 }
 
+#ifdef _WIN32
 bool ns_load_image_from_resource(int resource_id,const std::string &filename){
 	HRSRC hResource = ::FindResource(0, MAKEINTRESOURCE(resource_id), "BIN");
 	if (!hResource){
@@ -5729,14 +5758,19 @@ bool ns_load_image_from_resource(int resource_id,const std::string &filename){
 	out.close();
 	return true;
 }
-
+#endif
 
 void ns_worm_learner::display_splash_image(){
+	#ifdef _WIN32
 	string tmp_filename("start_background.tif");
 	ns_image_standard im;
 	ns_load_image_from_resource(IDR_BIN1,tmp_filename);
 	load_file(tmp_filename);
 	ns_dir::delete_file(tmp_filename);
+	#else
+	// note: using implicit string-literal concatenation after preprocessor substitution of NS_DATA_PATH
+	load_file(NS_DATA_PATH "start.tif");
+	#endif
 }
 void ns_worm_learner::stop_death_time_annotation(){
 	if (behavior_mode == ns_worm_learner::ns_draw_boxes)
@@ -5876,11 +5910,15 @@ void ns_worm_learner::output_distributions_of_detected_objects(){
 	//for (unsigned int i = 0; i < non_worm_list.size(); i++)
 	//	non_worm_stats[i] = non_worm_list[i]->generate_stats();
     
-
+	// Surely there's a better place to put these 
+	#ifdef _WIN32
 	std::string dir = "c:\\tt\\freq";
+	#else
+	std::string dir = "/tt/freq";
+	#endif
 	ns_dir::create_directory_recursive(dir);
 
-	ns_detected_worm_stats::draw_feature_frequency_distributions(std::vector<ns_detected_worm_stats>(), all_objects,"c:\\tt\\freq");
+	ns_detected_worm_stats::draw_feature_frequency_distributions(std::vector<ns_detected_worm_stats>(), all_objects,dir);
 }
 
 

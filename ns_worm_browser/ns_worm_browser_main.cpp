@@ -1,15 +1,18 @@
 #include <sys/timeb.h>
 #include "ns_worm_browser.h"
 #include "ns_time_path_image_analyzer.h"
-#ifndef WIN32
+#ifndef _WIN32
 #include <sys/time.h>
 #endif
-#include <Intrin.h>
+#ifdef _WIN32
 #include "resource.h"
+#include <Intrin.h>
+#endif
 #include "ns_high_precision_timer.h"
 #include "ns_experiment_storyboard.h"
 #include "ns_fl_modal_dialogs.h"
 
+#define IDLE_THROTTLE_FPS 20
 
 bool output_debug_messages = false;
 bool output_debug_file_opened = false;
@@ -130,7 +133,7 @@ class ns_worm_terminal_gl_window : public Fl_Gl_Window {
         if (!valid()) { 
 			valid(1); 
 			fix_viewport(x(),y(),w(), h()); 
-			Fl::add_idle(idle_main_window_update_callback); 
+			Fl::add_timeout(1.0/IDLE_THROTTLE_FPS, idle_main_window_update_callback); 
 			glClearColor(1, 1, 1, 1); 
 			 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear buffer
 			 //glLoadIdentity ();             /* clear the matrix */
@@ -272,7 +275,7 @@ class ns_worm_gl_window : public Fl_Gl_Window {
         if (!valid()) { 
 			valid(1); 
 			fix_viewport(w(), h()); 
-			Fl::add_idle(idle_worm_window_update_callback); 
+			Fl::add_timeout(1.0/IDLE_THROTTLE_FPS, idle_worm_window_update_callback); 
 			glClearColor(1, 1, 1, 1); 
 			 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear buffer
 			 glLoadIdentity ();             /* clear the matrix */
@@ -451,7 +454,12 @@ protected:
 		catch(ns_ex & ex){
 			delete r;
 			cerr << "Error in asynchronous thread: " << ex.text();
+#ifdef _WIN32
 			return 1;
+#else
+			// return type is void *: no simple/clean way to report errors
+			return 0;
+#endif
 		}
 		return 0;
 	}
@@ -518,7 +526,9 @@ public:
 			cerr << "Error: " << ex.text();
 			ns_alert_dialog d;
 			d.text = ex.text();
-			d.act();
+			// d.act();
+			ns_run_in_main_thread<ns_alert_dialog> dd(&d);
+			
 			/*MessageBox(
 				0,
 				ex.text().c_str(),
@@ -530,8 +540,8 @@ public:
 
 };
 
-
-HANDLE ns_main_thread_id(0);
+//never used?
+//HANDLE ns_main_thread_id(0); 
 
 
 std::string ns_get_input_string(const std::string title,const std::string default_value){
@@ -657,7 +667,15 @@ class ns_worm_terminal_main_menu_organizer : public ns_menu_organizer{
 		ns_run_in_main_thread<ns_image_file_chooser> run_mt(&im_cc);
 		if (im_cc.chosen) worm_learner.output_learning_set(im_cc.result);		
 	}
-	static void auto_output_learning_set(const std::string & value){worm_learner.output_learning_set("c:\\worm_detection\\training_set\\a",true);}
+	static void auto_output_learning_set(const std::string & value){
+		// Again, there must be a better place to put these than the root dir
+		#ifdef _WIN32
+		std::string path = "c:\\worm_detection\\training_set\\a";
+		#else
+		std::string path = "/worm_detection/training_set/a";		
+		#endif
+		worm_learner.output_learning_set(path,true);
+		}
 	static void rethreshold_image_set(const std::string & value){
 		/*std::vector<dialog_file_type> foo;
 		foo.push_back(dialog_file_type("(*.*)","*"));
@@ -1069,6 +1087,13 @@ class ns_worm_terminal_main_menu_organizer : public ns_menu_organizer{
 			worm_learner.draw();
 		}
 	}
+	static void file_open_xml(const std::string & data){
+		ns_file_chooser x;
+		x.title = "Load XML Experiment Specification";
+		x.filters.push_back(ns_file_chooser_file_type("XML","xml"));
+		ns_run_in_main_thread<ns_file_chooser> run_mt(&x);
+		if (x.chosen) worm_learner.handle_file_request(x.result);
+	}
 	static void file_save(const std::string & data){
 		/*std::vector<dialog_file_type> foo;
 		foo.push_back(dialog_file_type("TIF (*.tif)","tif"));
@@ -1172,7 +1197,8 @@ public:
 		add(ns_menu_item_spec(file_save,"File/_Save Image",FL_CTRL+'s'));
 		add(ns_menu_item_spec(file_quit,"File/Quit",FL_CTRL+'q'));
 		
-		add(ns_menu_item_spec(save_current_areas,"&Plate Locations/Define Scan Areas/(Open Preview Capture Image and Draw Scan Areas)",0,FL_MENU_INACTIVE));
+		add(ns_menu_item_spec(file_open_xml,"&Plate Locations/Submit XML Experiment Specification"));
+		add(ns_menu_item_spec(save_current_areas,"Plate Locations/Define Scan Areas/(Open Preview Capture Image and Draw Scan Areas)",0,FL_MENU_INACTIVE));
 		add(ns_menu_item_spec(save_current_areas,"Plate Locations/Define Scan Areas/_Save Selected Scan Areas to Disk"));
 		add(ns_menu_item_spec(clear_current_areas,"Plate Locations/Define Scan Areas/Clear Selected Scan Areas"));
 
@@ -1180,7 +1206,7 @@ public:
 		//add(ns_menu_item_spec(clipboard_paste,"Clipboard/Paste",FL_CTRL+'v'));
 
 		add(ns_menu_item_spec(masks_generate_composite,"Plate Locations/Define Sample Masks/Generate Experiment Mask Composite"));
-		add(ns_menu_item_spec(masks_generate_composite,"Plate Locations/Define Sample Masks/(Draw Plate Locations on Mask using Photoshop or GIMP)",0,FL_MENU_INACTIVE));
+		add(ns_menu_item_spec(masks_generate_composite,"Plate Locations/Define Sample Masks/(Draw Plate Locations on Mask using Photoshop)",0,FL_MENU_INACTIVE));
 		add(ns_menu_item_spec(masks_process_composite,"Plate Locations/Define Sample Masks/Analyze Plate Locations Drawn on Experiment Mask Composite"));
 		add(ns_menu_item_spec(masks_submit_composite,"Plate Locations/Define Sample Masks/_Submit Analyzed Experiment Mask Composite to Cluster"));
 		add(ns_menu_item_spec(open_individual_mask,"Plate Locations/Define Sample Masks/Individual Sample Masks/Open Mask"));
@@ -1424,7 +1450,7 @@ struct ns_asynch_region_picker{
 		std::string * region_name(static_cast<std::string *>(l));
 		launcher.launch(*region_name);
 		delete region_name;
-		return true;
+		return 0;
 	}
 	void launch(const std::string & region_name){
 		try{
@@ -2015,7 +2041,7 @@ struct ns_asynch_annotation_saver{
 	static ns_thread_return_type run_asynch(void * l){
 		ns_asynch_annotation_saver launcher;
 		launcher.launch();
-		return true;
+		return 0;
 	}
 	void launch(){
 		try{
@@ -2119,9 +2145,9 @@ void ns_show_worm_display_error(){
 
 void ns_handle_menu_bar_activity_request();
 void idle_main_window_update_callback(void *){
-	//double last_time = c_time;
-	//c_time =  GetTime() - init_time;
-	//cerr << "FPS = " << 1.0/(time-last_time) << "\n";
+	// double last_time = c_time;
+	// c_time =  GetTime() - init_time;
+	// cerr << "FPS = " << 1.0/(time-last_time) << "\n";
 	Fl::lock();
 	try{
 		ns_vector_2d cur_size(current_window->w(),current_window->h());
@@ -2177,6 +2203,7 @@ void idle_main_window_update_callback(void *){
 	catch(...){
 		Fl::unlock();
 	}
+	Fl::repeat_timeout(1/20., idle_main_window_update_callback);
 }
 void ns_hide_worm_window(){
 	hide_worm_window = true;
@@ -2216,6 +2243,7 @@ void idle_worm_window_update_callback(void *){
 	catch(...){
 		Fl::lock();
 	}
+	Fl::repeat_timeout(1/20., idle_worm_window_update_callback);
 }
 
 
@@ -2272,8 +2300,8 @@ void ns_transfer_annotations_directory(const std::string & annotation_source_dir
 	}
 }
 
-
-void ns_align_to_reference(const unsigned long region_info_id,ns_sql & sql){
+// The below code isn't called anywhere... 
+/*void ns_align_to_reference(const unsigned long region_info_id,ns_sql & sql){
 	ns_sql_result res;
 	sql << "SELECT " << ns_processing_step_db_column_name(ns_unprocessed) << ", " 
 		<< ns_processing_step_db_column_name(ns_process_spatial) << ", "
@@ -2352,7 +2380,7 @@ void ns_align_to_reference(const unsigned long region_info_id,ns_sql & sql){
 			cerr << ex.text() << "\n";
 		}
 	}
-}
+}*/
 
 void ns_update_sample_info(ns_sql & sql){
 	sql << "SELECT id, device_name, experiment_id FROM capture_samples WHERE device_capture_period_in_seconds = 0 || number_of_consecutive_captures_per_sample > 10";
@@ -2415,7 +2443,8 @@ int main() {
 	Fl_File_Icon::load_system_icons();
 	Fl::scheme("none");
 	
-	ns_main_thread_id = GetCurrentThread();
+	//never used?
+	//ns_main_thread_id = GetCurrentThread();
 	try{
 	
 		ns_multiprocess_control_options mp_options;
@@ -2493,10 +2522,15 @@ int main() {
 		
 		
 		ns_worm_browser_output_debug(__LINE__,__FILE__,"Loading occupied animation");
+		#ifdef _WIN32
 		std::string tmp_filename = "occupied_animation.tif";
 		ns_load_image_from_resource(IDR_BIN2,tmp_filename);
 		ns_load_image(tmp_filename,worm_learner.animation);
 		ns_dir::delete_file(tmp_filename);
+		#else
+		// note: using implicit string-literal concatenation after preprocessor substitution of NS_DATA_PATH
+		ns_load_image(NS_DATA_PATH "occupied_image.tif",worm_learner.animation);
+		#endif
 		//win.draw_animation = true;
 		
 		//worm_learner.compare_machine_and_by_hand_annotations();
@@ -2574,7 +2608,7 @@ struct ns_asynch_worm_launcher{
 		ns_asynch_worm_launcher * launcher(static_cast<ns_asynch_worm_launcher *>(l));
 		launcher->launch();
 		delete launcher;
-		return true;
+		return 0;
 	}
 	void launch(){
 		try{
