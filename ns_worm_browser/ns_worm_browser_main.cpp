@@ -1196,7 +1196,7 @@ public:
 		add(ns_menu_item_spec(file_save,"File/_Save Image",FL_CTRL+'s'));
 		add(ns_menu_item_spec(file_quit,"File/Quit",FL_CTRL+'q'));
 		
-		add(ns_menu_item_spec(file_open_xml,"&Plate Locations/Submit XML Experiment Specification"));
+		add(ns_menu_item_spec(file_open_xml,"&Plate Locations/_Submit Experiment Schedule"));
 		add(ns_menu_item_spec(save_current_areas,"Plate Locations/Define Scan Areas/(Open Preview Capture Image and Draw Scan Areas)",0,FL_MENU_INACTIVE));
 		add(ns_menu_item_spec(save_current_areas,"Plate Locations/Define Scan Areas/_Save Selected Scan Areas to Disk"));
 		add(ns_menu_item_spec(clear_current_areas,"Plate Locations/Define Scan Areas/Clear Selected Scan Areas"));

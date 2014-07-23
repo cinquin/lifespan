@@ -1,6 +1,6 @@
 #ifndef NS_WORM_TERMINAL
 #define NS_WORM_TERMINAL
-
+#include "ns_ex.h"
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Gl_Window.H>

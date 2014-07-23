@@ -2074,6 +2074,7 @@ void ns_worm_learner::save_current_area_selections(){
 		ns_image_file_chooser im_cc;
 		im_cc.save_file();
 		ns_file_chooser_file_type t;
+		im_cc.filters.clear();
 		im_cc.filters.push_back(ns_file_chooser_file_type("Text","txt"));
 		ns_run_in_main_thread<ns_image_file_chooser> run_mt(&im_cc);
 		if (im_cc.chosen)
@@ -4873,8 +4874,8 @@ void ns_worm_learner::output_area_info(const std::string & filename){
 
 		out << "====Specification in Inches====\n";
 		area_handler.output_boxes(out,device_name,image_resolution,"in");
-		out << "\n====Specification in Source Image Pixels====\n";
-		area_handler.output_boxes(out,device_name,1,"pix");
+		//out << "\n====Specification in Source Image Pixels====\n";
+		//area_handler.output_boxes(out,device_name,1,"pix");
 	}
 }
 
