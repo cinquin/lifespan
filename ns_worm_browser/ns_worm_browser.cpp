@@ -2073,6 +2073,7 @@ void ns_worm_learner::save_current_area_selections(){
 		
 		ns_image_file_chooser im_cc;
 		im_cc.save_file();
+		im_cc.default_filename = default_filename;
 		ns_file_chooser_file_type t;
 		im_cc.filters.clear();
 		im_cc.filters.push_back(ns_file_chooser_file_type("Text","txt"));
