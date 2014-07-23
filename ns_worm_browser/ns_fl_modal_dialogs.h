@@ -5,7 +5,8 @@
 #include "FL/Fl_Output.H"
 #include "FL/Fl_Button.H"
 #include "FL/Fl_Pack.H"
-#include "FL/Fl_Message.H"
+#include "FL/fl_message.H"
+#include "FL/Fl_Text_Display.H"
 
 class ns_input_dialog{
 public:
@@ -126,9 +127,6 @@ public:
 
 
 
-
-#include <FL\Fl_Text_Display.H>
-#include "FL\Fl_Button.h"
 class ns_text_display_window;
 class ns_close_button : public Fl_Button{
 public:
@@ -219,11 +217,11 @@ public:
 	ns_run_in_main_thread(T * t){
 		data = t;
 		wait_for_it = true;
-		Fl::awake(ns_run_in_main_thread<typename T>::main_thread_call,(void *)(this));
+		Fl::awake(ns_run_in_main_thread<T>::main_thread_call,(void *)(this));
 		while(wait_for_it)ns_thread::sleep(1);
 	}
 	static void main_thread_call(void * t){
-		ns_run_in_main_thread<typename T> * tt = (ns_run_in_main_thread<typename T> *)(t);
+		ns_run_in_main_thread<T> * tt = (ns_run_in_main_thread<T> *)(t);
 		tt->data->act();
 		tt->wait_for_it = false;
 	}
@@ -238,13 +236,13 @@ public:
 	ns_run_in_main_thread_custom_wait(T * t){
 		data = t;
 		t->wait_for_it = true;
-		Fl::awake(ns_run_in_main_thread<typename T>::main_thread_call,(void *)(this));
+		Fl::awake(ns_run_in_main_thread<T>::main_thread_call,(void *)(this));
 		while(t->wait_for_it)
 			ns_thread::sleep(1);
 		cout << "WHA";
 	}
 	static void main_thread_call(void * t){
-		ns_run_in_main_thread<typename T> * tt = (ns_run_in_main_thread<typename T> *)(t);
+		ns_run_in_main_thread<T> * tt = (ns_run_in_main_thread<T> *)(t);
 		tt->data->act();
 	}
 private:

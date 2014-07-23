@@ -755,7 +755,7 @@ public:
 	void navigate_solo_worm_annotation(ns_death_time_solo_posture_annotater::ns_image_series_annotater_action action, bool asynch=false);
 	void save_death_time_annotations();
 	bool prompt_to_save_death_time_annotations();
-	void ns_worm_learner::load_strain_metadata_into_database(const std::string filename);
+	void load_strain_metadata_into_database(const std::string filename);
 	void upgrade_tables();
 	template<class whole_image>
 	void load_file(const std::string & filename, whole_image & image){
