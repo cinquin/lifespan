@@ -38,7 +38,7 @@ host_triplet = @host@
 bin_PROGRAMS = ns_image_server_barcodes$(EXEEXT) \
 	ns_image_server$(EXEEXT) $(am__EXEEXT_1)
 @BUILD_BROWSER_TRUE@am__append_1 = ns_worm_browser
-@BUILD_BROWSER_TRUE@am__append_2 = ../windows_build/occupied_image.tif ../windows_build/start.tif
+@BUILD_BROWSER_TRUE@am__append_2 = ../files/occupied_image.tif ../files/start.tif
 @BUILD_BROWSER_TRUE@am__append_3 = -DNS_DATA_PATH="\"$(pkgdatadir)/\""
 # If ns_image_server_CPPFLAGS doesn't match the ns_worm_browser_CPPFLAGS,
 # automake will build all the .o files in $(src_common) separately for each.
@@ -275,7 +275,7 @@ DIST_SOURCES = $(ns_image_server_SOURCES) \
 	$(ns_image_server_barcodes_SOURCES) \
 	$(am__ns_worm_browser_SOURCES_DIST)
 am__dist_pkgdata_DATA_DIST = ../files/default_font.ttf \
-	../windows_build/occupied_image.tif ../windows_build/start.tif
+	../files/occupied_image.tif ../files/start.tif
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \

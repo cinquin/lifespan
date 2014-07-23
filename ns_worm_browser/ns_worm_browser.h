@@ -1,18 +1,20 @@
 #ifndef NS_WORM_TERMINAL
-#include "ns_image.h"
 #define NS_WORM_TERMINAL
-#include "ns_image_server.h"
-#include "ns_image_processing_pipeline.h"
-#include "ns_jpeg.h"
-#include "ns_tiff.h"
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Gl_Window.H>
 #include <FL/Fl_Menu_.H>
 #include <FL/Fl_Menu_Bar.H>
-
 #include <FL/gl.h>
+#include "ns_fl_modal_dialogs.h"
+
+#include "ns_image.h"
+#include "ns_image_server.h"
+#include "ns_image_processing_pipeline.h"
+#include "ns_jpeg.h"
+#include "ns_tiff.h"
+
 
 #include "ns_image_stream_buffers.h"
 #include "ns_spatial_avg.h"
